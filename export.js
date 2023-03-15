@@ -1,4 +1,6 @@
 function __export_hensei(g) {
+    const uncaps = [40, 60, 80, 100, 150];
+
     var deck = g.view.deck_model.attributes.deck;
     var name = deck['name'];
     
@@ -53,21 +55,12 @@ function __export_hensei(g) {
         weaponOut['id'] = master['id'];
 
         var uncap = 0;
-        var lvl = parseInt(param['level']);
-        if(lvl > 40) {
-            uncap++;
-            if(lvl > 60) {
+        var lvl = parseInt(param['level']); 
+        for(k2 in uncaps)
+            if(lvl > uncaps[k2])
                 uncap++;
-                if(lvl > 80) {
-                    uncap++;
-                    if(lvl > 100) {
-                        uncap++;
-                        if(lvl > 150)
-                            uncap++;
-                    }
-                }
-            }
-        }
+            else break;
+        
         weaponOut['uncap'] = uncap;
 
         var arousal = param['arousal'];
