@@ -7,8 +7,10 @@ function __export_hensei(g) {
 
     out['name'] = name;
     out['class'] = pc['job']['master']['name'];
-    // TODO: shield
-    // TODO: manatura
+    out['accessory'] = pc['familiar_id'];
+    if(!out['accessory'])
+        out['accessory'] = pc['shield_id']
+    out['extra'] = pc['isExtraDeck'];
 
     var subskillsOut = [];
     var set_action = pc['set_action'];
@@ -44,13 +46,23 @@ function __export_hensei(g) {
         var master = obj['master'];
         var param = obj['param'];
 
+        if(!master || !param)
+            continue;
+
         weaponOut['name'] = master['name'];
         weaponOut['id'] = master['id'];
+
+        var arousal = param['arousal'];
+        if(arousal['is_arousal_weapon']) {
+            var awakening = {};
+            awakening['type'] = arousal['form'];
+            awakening['lvl'] = arousal['level'];
+            weaponOut['awakening'] = awakening;
+        }
 
         weaponsOut.push(weaponOut);
     }
     out['weapons'] = weaponsOut;
-    // TODO: awakening
     // TODO: ax
     // TODO: modifiable skills
     // TODO: handle ID'ing for multicolor weapons (ultima, ccw)
