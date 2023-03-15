@@ -21,9 +21,9 @@ function __hensei_load_npc(npc) {
         charOut['name'] = master['name'];
         charOut['id'] = master['id'];
         charOut['ringed'] = param['has_npcaugment_constant'];
-        charOut['uncap'] = param['evolution'];
+        charOut['uncap'] = parseInt(param['evolution']);
 
-        var trans = param['phase'];
+        var trans = parseInt(param['phase']);
         if(trans > 0)
             charOut['transcend'] = trans;
 
@@ -115,10 +115,35 @@ function __hensei_load_weapons(weapons) {
 }
 
 function __hensei_load_summons(summons) {
+    const transcendences = [210, 220, 230, 240];
+
     var summonsOut = [];
     
     for(k in summons) {
+        var summonOut = {};
+        var obj = summons[k];
+        var master = obj['master'];
+        var param = obj['param'];
 
+        summonOut['name'] = master['name'];
+        summonOut['id'] = master['id'];
+
+        var uncap = parseInt(param['evolution']);
+        summonOut['uncap'] = uncap;
+
+        if(uncap > 5) {
+            var trans = 1;
+            var lvl = parseInt(param['level']);
+
+            for(k2 in transcendences)
+                if(lvl > transcendences[k2])
+                    trans++;
+                else break;
+
+            summonOut['transcend'] = trans;
+        }
+
+        summonsOut.push(summonOut);
     }
     
     return summonsOut;
@@ -144,6 +169,8 @@ function __hensei_export(g) {
     out['subskills'] = __hensei_load_subskill(pc['set_action']);
     out['characters'] = __hensei_load_npc(deck['npc']);
     out['weapons'] = __hensei_load_weapons(pc['weapons']);
+    out['summons'] = __hensei_load_summons(pc['summons']);
+    out['sub_summons'] = __hensei_load_summons(pc['sub_summons']);
 
     return out;
 }
