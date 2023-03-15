@@ -18,8 +18,8 @@ function __hensei_import() {
     __job(ctx, input['class'], input['subskills']);
     __chars(ctx, input['characters']);
     __weapons(ctx, input['weapons']);
-    __summons(ctx, input['summons'], 0);
-    __summons(ctx, input['sub_summons'], 5);
+    __summons(ctx, input['friend_summon'], input['summons'], 0);
+    __summons(ctx, undefined, input['sub_summons'], 5);
 
     alert('Import complete, reloading');
     //location.reload();
@@ -53,7 +53,18 @@ function __job(ctx, name, subskills) {
                 }
             }
 
-            __put(ctx, 'parties', ctx.party, 'job_skills', {party: subskillsObj});
+            var failures = [];
+            for(k in subskillsObj) {
+                var send = {};
+                send[k] = subskillsObj[k];
+                var res = __put(ctx, 'parties', ctx.party, 'job_skills', {party: send});
+                
+                if('code' in res)
+                    failures.push(send);
+            }
+
+            for(k in failures)
+                __put(ctx, 'parties', ctx.party, 'job_skills', {party: failures[k]});
         }
     }
 }
@@ -71,13 +82,19 @@ function __chars(ctx, chars) {
         });
 
         if(chId.length > 0) {
-            __post(ctx, 'characters', {character: {
+            var gridChr = __add_and_fix_conflicts(ctx, 'characters', i, {character: {
                 'character_id': chId,
                 'party_id': ctx.party,
                 'position': i,
                 'uncap_level': uncap
             }});
-            // TODO rings and transcendence
+
+            var gcId = gridChr['id'];
+            if('ringed' in obj && obj['ringed'])
+                __put(ctx, 'grid_characters', gcId, '', {character: {perpetuity: true}});
+
+            if('transcend' in obj)
+                __put(ctx, 'grid_characters', gcId, '', {character: {uncap_level: 6, transcendence_step: obj['transcend']}});
 
             i++;
         }
@@ -101,21 +118,13 @@ function __weapons(ctx, weapons) {
             var mainhand = i == 0;
 
             var pos = i - 1;
-            var gridWpn = __post(ctx, 'weapons', {weapon: {
+            var gridWpn = __add_and_fix_conflicts(ctx, 'weapons', pos, {weapon: {
                 'weapon_id': wpId,
                 'party_id': ctx.party,
                 'position': pos,
                 'mainhand': mainhand,
                 'uncap_level': uncap,
             }});
-
-            if('conflicts' in gridWpn) {
-                gridWpn = __post(ctx, 'weapons/resolve', {resolve: {
-                    conflicting: [gridWpn['conflicts'][0]['id']],
-                    incoming: gridWpn['incoming']['id'],
-                    position: pos
-                }})
-            }
 
             var gwId = gridWpn['grid_weapon']['id'];
             if('attr' in obj) {
@@ -128,7 +137,7 @@ function __weapons(ctx, weapons) {
     }
 }
 
-function __summons(ctx, summons, offset) {
+function __summons(ctx, friend, summons, offset) {
     var i = 0;
     for(k in summons) {
         var obj = summons[k];
@@ -144,7 +153,7 @@ function __summons(ctx, summons, offset) {
             var main = offset == 0 && i == 0;
 
             var pos = i - 1 + offset;
-            var gridSum = __post(ctx, 'summons', {summon: {
+            var gridSum = __add_and_fix_conflicts(ctx, 'summons', pos, {summon: {
                 'summon_id': smId,
                 'party_id': ctx.party,
                 'position': pos,
@@ -152,19 +161,44 @@ function __summons(ctx, summons, offset) {
                 'friend': false,
                 'uncap_level': uncap
             }});
-            // TODO: friend summon
 
-            if('conflicts' in gridSum) {
-                gridSum = __post(ctx, 'summons/resolve', {resolve: {
-                    conflicting: [gridSum['conflicts'][0]['id']],
-                    incoming: gridSum['incoming']['id'],
-                    position: pos
-                }})
-            }
+            var gsId = gridSum['grid_summon']['id'];
+
+            if('transcend' in obj)
+                __put(ctx, 'grid_summons', gsId, '', {summon: {uncap_level: 6, transcendence_step: obj['transcend']}});            
 
             i++;
         }
     }
+
+    if(friend) {
+        var smId = __search(ctx, 'summons', {query: friend}, function(c) {
+            return c['name'] == friend;
+        });
+
+        if(smId.length > 0)
+             __add_and_fix_conflicts(ctx, 'summons', pos, {summon: {
+                'summon_id': smId,
+                'party_id': ctx.party,
+                'position': 6,
+                'main': false,
+                'friend': true
+            }});
+    }
+}
+
+function __add_and_fix_conflicts(ctx, namespace, pos, data) {
+    var obj = __post(ctx, namespace, data);
+    
+    if('conflicts' in obj) {
+        obj = __post(ctx, `${namespace}/resolve`, {resolve: {
+            conflicting: [obj['conflicts'][0]['id']],
+            incoming: obj['incoming']['id'],
+            position: pos
+        }});
+    }
+
+    return obj;
 }
 
 function __search(ctx, endpoint, query, filter) {
@@ -193,12 +227,12 @@ function __get_data() {
 }
 
 function __get_user_string() {
-    return '{"name":"Exec L","class":"Relic Buster","extra":true,"subskills":["Blitz Raid","Splitting Spirit","Fighting Spirit"],"characters":[{"name":"Alexiel","id":"3040232000","ringed":true,"uncap":4},{"name":"Florence","id":"3040429000","ringed":false,"uncap":4},{"name":"Nehan","id":"3040341000","ringed":false,"uncap":4},{"name":"Mugen","id":"3040428000","ringed":false,"uncap":4},{"name":"Aglovale","id":"3040322000","ringed":true,"uncap":4}],"weapons":[{"name":"Sword of Repudiation","id":"1040017000","uncap":5,"keys":["γ Revelation","Zion\'s Stamina"]},{"name":"Harmonia","id":"1040814500","uncap":4},{"name":"Harmonia","id":"1040814500","uncap":4},{"name":"Ultima Sword","attr":3,"id":"1040011900","uncap":5,"keys":["Gladius Plenum","Scandere Aggressio","Fulgor Impetus"]},{"name":"Luminiera Sword Omega","id":"1040007200","uncap":5,"ax":[{"id":1591,"val":"5.5"},{"id":1599,"val":"1"}]},{"name":"Luminiera Sword Omega","id":"1040007200","uncap":5,"ax":[{"id":1591,"val":"3"},{"id":1594,"val":"2"}]},{"name":"Cosmic Sword","id":"1040019500","uncap":4},{"name":"Luminiera Sword Omega","id":"1040007200","uncap":5,"ax":[{"id":1590,"val":"4"},{"id":1601,"val":"2_1.5"}]},{"name":"Luminiera Sword Omega","id":"1040007200","uncap":5,"ax":[{"id":1590,"val":"5"},{"id":1588,"val":"1"}]},{"name":"Luminiera Sword Omega","id":"1040007200","uncap":5,"ax":[{"id":1590,"val":"6"},{"id":1601,"val":"2_1.5"}]},{"name":"Shooting of The Star","id":"1040513700","uncap":4},{"name":"Sword of Pallas Militis","id":"1040022600","uncap":3}],"summons":[{"name":"Beelzebub","id":"2040408000","uncap":4},{"name":"The Star","id":"2040319000","uncap":5},{"name":"Halluel and Malluel","id":"2040275000","uncap":4},{"name":"Metatron","id":"2040330000","uncap":0},{"name":"Artemis","id":"2040381000","uncap":0}],"sub_summons":[{"name":"Yatima","id":"2040417000","uncap":4},{"name":"Belial","id":"2040347000","uncap":4}]}';
+    return '{"name":"Akasha","class":"Runeslayer","extra":false,"friend_summon":"Hades","subskills":["Miserable Mist","Splitting Spirit","Dragon Break"],"characters":[{"name":"Seox","id":"3040035000","uncap":6,"ringed":true,"transcend":5},{"name":"Fediel","id":"3040376000","uncap":4,"ringed":true},{"name":"Bowman","id":"3040424000","uncap":4},{"name":"Niyon","id":"3040038000","uncap":6,"transcend":5},{"name":"Tien","id":"3040039000","uncap":6,"transcend":1}],"weapons":[{"name":"Katana of Renunciation","id":"1040911100","uncap":5,"keys":["β Revelation","Deceitful Fallacy"]},{"name":"Pain and Suffering","id":"1040314300","uncap":4},{"name":"Pain and Suffering","id":"1040314300","uncap":4},{"name":"Fallen Sword","id":"1040014300","uncap":4},{"name":"Bab-el-Mandeb","id":"1040311600","uncap":4},{"name":"Bab-el-Mandeb","id":"1040311600","uncap":4},{"name":"Parazonium","id":"1040108700","uncap":4,"awakening":{"type":1,"lvl":4}},{"name":"Skeletal Eclipse","id":"1040216900","uncap":4},{"name":"Skeletal Eclipse","id":"1040216900","uncap":4},{"name":"Ultima Claw","attr":1,"id":"1040608100","uncap":5,"keys":["Luctor Plenum","Scandere Aggressio","Fulgor Impetus"]}],"summons":[{"name":"Hades","id":"2040090000","uncap":5},{"name":"Death","id":"2040315000","uncap":5},{"name":"Zirnitra","id":"2040385000","uncap":0},{"name":"Belial","id":"2040347000","uncap":4},{"name":"Beelzebub","id":"2040408000","uncap":4}],"sub_summons":[{"name":"Belial","id":"2040411000","uncap":0},{"name":"Bahamut","id":"2040003000","uncap":6,"transcend":5}]}';
     //return prompt("Paste your Export here");
 }
 
 function __put(ctx, namespace, id, endpoint, payload) {
-    __fetch(ctx, 'PUT', `${namespace}/${id}/${endpoint}`, payload);
+    return __fetch(ctx, 'PUT', `${namespace}/${id}/${endpoint}`, payload);
 }
 
 function __post(ctx, endpoint, payload) {

@@ -20,8 +20,11 @@ function __hensei_load_npc(npc) {
         
         charOut['name'] = master['name'];
         charOut['id'] = master['id'];
-        charOut['ringed'] = param['has_npcaugment_constant'];
         charOut['uncap'] = parseInt(param['evolution']);
+
+        var ringed = param['has_npcaugment_constant'];
+        if(ringed)
+            charOut['ringed'] = true;
 
         var trans = parseInt(param['phase']);
         if(trans > 0)
@@ -171,6 +174,7 @@ function __hensei_export(g) {
     out['name'] = name;
     out['class'] = pc['job']['master']['name'];
     out['extra'] = pc['isExtraDeck'];
+    out['friend_summon'] = pc['damage_info']['summon_name'];
 
     var accessory = pc['familiar_id'];
     if(!accessory)
