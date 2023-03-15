@@ -2,18 +2,20 @@ function __export_hensei(deck) {
     var name = deck['name'];
     
     var out = {};
-    out['name'] = name;
-    out['class'] = deck['pc']['job']['master']['name'];
+    var pc = deck['pc'];
 
-    var subskills = [];
-    var set_action = deck['pc']['set_action'];
+    out['name'] = name;
+    out['class'] = pc['job']['master']['name'];
+
+    var subskillsOut = [];
+    var set_action = pc['set_action'];
     for (var i = set_action.length - 1; i >= 0; i--) {
         var obj = set_action[i];
-        subskills.push(obj['name']);
+        subskillsOut.push(obj['name']);
     }
-    out['subskills'] = subskills;
+    out['subskills'] = subskillsOut;
     
-    var characters = [];
+    var charactersOut = [];
     var npc = deck['npc'];
     for(k in npc) {
         var charOut = {};
@@ -21,15 +23,29 @@ function __export_hensei(deck) {
         var master = obj['master'];
         var param = obj['param'];
         
-        console.log(master['name']);
         charOut['name'] = master['name'];
         charOut['id'] = master['id'];
         charOut['ringed'] = param['has_npcaugment_constant'];
         charOut['uncap'] = param['evolution'];
 
-        characters.push(charOut);
+        charactersOut.push(charOut);
     }
-    out['characters'] = characters;
+    out['characters'] = charactersOut;
+
+    var weaponsOut = [];
+    var weapons = pc['weapons'];
+    for(k in weapons) {
+        var weaponOut = {};
+        var obj = weapons[k];
+        var master = obj['master'];
+        var param = obj['param'];
+
+        weaponOut['name'] = master['name'];
+        weaponOut['id'] = master['id'];
+
+        weaponsOut.push(weaponOut);
+    }
+    out['weapons'] = weaponsOut;
     
     alert(JSON.stringify(out));
 }
