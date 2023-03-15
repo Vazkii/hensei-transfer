@@ -74,6 +74,8 @@ function __chars(ctx, chars) {
                 'position': i,
                 'uncap_level': uncap
             }});
+            // TODO rings and transcendence
+
             i++;
         }
     }
@@ -116,6 +118,7 @@ function __weapons(ctx, weapons) {
             if('attr' in obj) {
                 __put(ctx, 'grid_weapons', gwId, '', {weapon: {element: elementMapping[obj['attr'] + 1]}});
             }
+            // TODO: keys and awakening
 
             i++;
         }
