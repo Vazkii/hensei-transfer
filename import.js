@@ -18,7 +18,10 @@ function __hensei_import() {
     __job(ctx, input['class'], input['subskills']);
     __chars(ctx, input['characters']);
     __weapons(ctx, input['weapons']);
+    __summons(ctx, input['summons'], 0);
+    __summons(ctx, input['sub_summons'], 5);
 
+    alert('Import complete, reloading');
     //location.reload();
 }  
 
@@ -119,6 +122,45 @@ function __weapons(ctx, weapons) {
                 __put(ctx, 'grid_weapons', gwId, '', {weapon: {element: elementMapping[obj['attr'] + 1]}});
             }
             // TODO: keys and awakening
+
+            i++;
+        }
+    }
+}
+
+function __summons(ctx, summons, offset) {
+    var i = 0;
+    for(k in summons) {
+        var obj = summons[k];
+        var smName = obj['name'];
+        var gbId = obj['id'];
+        var uncap = obj['uncap'];
+
+        var smId = __search(ctx, 'summons', {query: smName}, function(c) {
+            return c['granblue_id'] == gbId;
+        });
+
+        if(smId.length > 0) {
+            var main = offset == 0 && i == 0;
+
+            var pos = i - 1 + offset;
+            var gridSum = __post(ctx, 'summons', {summon: {
+                'summon_id': smId,
+                'party_id': ctx.party,
+                'position': pos,
+                'main': main,
+                'friend': false,
+                'uncap_level': uncap
+            }});
+            // TODO: friend summon
+
+            if('conflicts' in gridSum) {
+                gridSum = __post(ctx, 'summons/resolve', {resolve: {
+                    conflicting: [gridSum['conflicts'][0]['id']],
+                    incoming: gridSum['incoming']['id'],
+                    position: pos
+                }})
+            }
 
             i++;
         }
