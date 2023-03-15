@@ -52,6 +52,24 @@ function __export_hensei(g) {
         weaponOut['name'] = master['name'];
         weaponOut['id'] = master['id'];
 
+        var uncap = 0;
+        var lvl = parseInt(param['level']);
+        if(lvl > 40) {
+            uncap++;
+            if(lvl > 60) {
+                uncap++;
+                if(lvl > 80) {
+                    uncap++;
+                    if(lvl > 100) {
+                        uncap++;
+                        if(lvl > 150)
+                            uncap++;
+                    }
+                }
+            }
+        }
+        weaponOut['uncap'] = uncap;
+
         var arousal = param['arousal'];
         if(arousal['is_arousal_weapon']) {
             var awakening = {};
@@ -60,11 +78,24 @@ function __export_hensei(g) {
             weaponOut['awakening'] = awakening;
         }
 
+        var augment = param['augment_skill_info'];
+        if(augment.length > 0) {
+            var actualAugment = augment[0];
+            var ax = [];
+            for (k2 in actualAugment) {
+                var axOut = {};
+                var augmentObj = actualAugment[k2];
+
+                axOut['id'] = augmentObj['skill_id'];
+                axOut['val'] = augmentObj['effect_value'];
+                ax.push(axOut);
+            }
+            weaponOut['ax'] = ax;
+        }
+
         weaponsOut.push(weaponOut);
     }
     out['weapons'] = weaponsOut;
-    // TODO: ax
-    // TODO: modifiable skills
     // TODO: handle ID'ing for multicolor weapons (ultima, ccw)
 
     return out;
