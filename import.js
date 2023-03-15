@@ -15,6 +15,8 @@ function __hensei_import() {
     };
 
     // TODO: support creating new team
+    // TODO: copy manatura and shield
+    // TODO: some sort of progress bar
 
     __info(ctx, input['name'], input['extra']);
     __job(ctx, input['class'], input['subskills']);
@@ -226,13 +228,13 @@ function __seek_id(arr, filter) {
 }
 
 function __get_auth() {
-    var match = document.cookie.match(new RegExp('token%22%3A%22(.+?)%22'));
+    var match = document.cookie.match(new RegExp('token\u002522\u00253A\u002522(.+?)\u002522'));
     if(match)
         return match[1];
 }
 
 function __get_data() {
-    return JSON.parse($('#__NEXT_DATA__').text).props.pageProps.context;
+    return JSON.parse(document.querySelector('\u0023__NEXT_DATA__').text).props.pageProps.context;
 }
 
 function __get_user_string() {
