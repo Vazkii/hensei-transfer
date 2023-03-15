@@ -14,6 +14,8 @@ function __hensei_import() {
         auth: auth
     };
 
+    // TODO: support creating new team
+
     __info(ctx, input['name'], input['extra']);
     __job(ctx, input['class'], input['subskills']);
     __chars(ctx, input['characters']);
@@ -22,7 +24,7 @@ function __hensei_import() {
     __summons(ctx, undefined, input['sub_summons'], 5);
 
     alert('Import complete, reloading');
-    //location.reload();
+    location.reload();
 }  
 
 function __info(ctx, name, extra) {
@@ -127,10 +129,17 @@ function __weapons(ctx, weapons) {
             }});
 
             var gwId = gridWpn['grid_weapon']['id'];
-            if('attr' in obj) {
+            if('attr' in obj)
                 __put(ctx, 'grid_weapons', gwId, '', {weapon: {element: elementMapping[obj['attr'] + 1]}});
+            if('awakening' in obj) {
+                var awakening = obj['awakening'];
+                var awkType = awakening['type'];
+                var awkLvl = awakening['lvl'];
+
+                __put(ctx, 'grid_weapons', gwId, '', {weapon: {awakening_type: awkType, awakening_level: awkLvl}});
             }
-            // TODO: keys and awakening
+
+            // TODO: keys
 
             i++;
         }
@@ -173,7 +182,7 @@ function __summons(ctx, friend, summons, offset) {
 
     if(friend) {
         var smId = __search(ctx, 'summons', {query: friend}, function(c) {
-            return c['name'] == friend;
+            return c['name']['en'] == friend;
         });
 
         if(smId.length > 0)
@@ -227,8 +236,7 @@ function __get_data() {
 }
 
 function __get_user_string() {
-    return '{"name":"Akasha","class":"Runeslayer","extra":false,"friend_summon":"Hades","subskills":["Miserable Mist","Splitting Spirit","Dragon Break"],"characters":[{"name":"Seox","id":"3040035000","uncap":6,"ringed":true,"transcend":5},{"name":"Fediel","id":"3040376000","uncap":4,"ringed":true},{"name":"Bowman","id":"3040424000","uncap":4},{"name":"Niyon","id":"3040038000","uncap":6,"transcend":5},{"name":"Tien","id":"3040039000","uncap":6,"transcend":1}],"weapons":[{"name":"Katana of Renunciation","id":"1040911100","uncap":5,"keys":["β Revelation","Deceitful Fallacy"]},{"name":"Pain and Suffering","id":"1040314300","uncap":4},{"name":"Pain and Suffering","id":"1040314300","uncap":4},{"name":"Fallen Sword","id":"1040014300","uncap":4},{"name":"Bab-el-Mandeb","id":"1040311600","uncap":4},{"name":"Bab-el-Mandeb","id":"1040311600","uncap":4},{"name":"Parazonium","id":"1040108700","uncap":4,"awakening":{"type":1,"lvl":4}},{"name":"Skeletal Eclipse","id":"1040216900","uncap":4},{"name":"Skeletal Eclipse","id":"1040216900","uncap":4},{"name":"Ultima Claw","attr":1,"id":"1040608100","uncap":5,"keys":["Luctor Plenum","Scandere Aggressio","Fulgor Impetus"]}],"summons":[{"name":"Hades","id":"2040090000","uncap":5},{"name":"Death","id":"2040315000","uncap":5},{"name":"Zirnitra","id":"2040385000","uncap":0},{"name":"Belial","id":"2040347000","uncap":4},{"name":"Beelzebub","id":"2040408000","uncap":4}],"sub_summons":[{"name":"Belial","id":"2040411000","uncap":0},{"name":"Bahamut","id":"2040003000","uncap":6,"transcend":5}]}';
-    //return prompt("Paste your Export here");
+    return prompt("Paste your Export here");
 }
 
 function __put(ctx, namespace, id, endpoint, payload) {
