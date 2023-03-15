@@ -1,5 +1,11 @@
 function __export_hensei(g) {
     const uncaps = [40, 60, 80, 100, 150];
+    const keyable = [
+        [13], 
+        [3, 13, 19, 26],
+        [3, 13, 26]
+    ];
+    const multielement = [13, 19];
 
     var deck = g.view.deck_model.attributes.deck;
     var name = deck['name'];
@@ -9,10 +15,13 @@ function __export_hensei(g) {
 
     out['name'] = name;
     out['class'] = pc['job']['master']['name'];
-    out['accessory'] = pc['familiar_id'];
-    if(!out['accessory'])
-        out['accessory'] = pc['shield_id']
     out['extra'] = pc['isExtraDeck'];
+
+    var accessory = pc['familiar_id'];
+    if(!accessory)
+        accessory = pc['shield_id']
+    if(accessory)
+        out['accessory'] = accessory;
 
     var subskillsOut = [];
     var set_action = pc['set_action'];
@@ -34,7 +43,10 @@ function __export_hensei(g) {
         charOut['id'] = master['id'];
         charOut['ringed'] = param['has_npcaugment_constant'];
         charOut['uncap'] = param['evolution'];
-        charOut['transcend'] = param['phase'];
+
+        var trans = param['phase'];
+        if(trans > 0)
+            charOut['transcend'] = trans;
 
         charactersOut.push(charOut);
     }
@@ -51,8 +63,16 @@ function __export_hensei(g) {
         if(!master || !param)
             continue;
 
+        var series = parseInt(master['series_id']);
         weaponOut['name'] = master['name'];
-        weaponOut['id'] = master['id'];
+
+        var id = master['id'];
+        if(multielement.includes(series)) {
+            var attr = parseInt(master['attribute']) - 1;
+            weaponOut['attr'] = attr;
+            id = `${parseInt(id) - (attr * 100)}`;
+        }
+        weaponOut['id'] = id;
 
         var uncap = 0;
         var lvl = parseInt(param['level']); 
@@ -86,13 +106,25 @@ function __export_hensei(g) {
             weaponOut['ax'] = ax;
         }
 
+        var keys = [];
+        for(i in keyable) {
+            if(keyable[i].includes(series)) {
+                var j = parseInt(i)+1;
+                var arrKey = `skill${j}`;
+                if(arrKey in obj)
+                    keys.push(obj[arrKey]['name']);
+            }
+        }
+        if(keys.length > 0)
+            weaponOut['keys'] = keys;
+
         weaponsOut.push(weaponOut);
     }
     out['weapons'] = weaponsOut;
-    // TODO: handle ID'ing for multicolor weapons (ultima, ccw)
 
     return out;
 }
 
 var __hensei_out = __export_hensei(Game);
 __hensei_out
+
