@@ -1,12 +1,4 @@
 function __export_hensei(g) {
-    const uncaps = [40, 60, 80, 100, 150];
-    const keyable = [
-        [13], 
-        [3, 13, 19, 26],
-        [3, 13, 26]
-    ];
-    const multielement = [13, 19];
-
     var deck = g.view.deck_model.attributes.deck;
     var name = deck['name'];
     
@@ -23,16 +15,27 @@ function __export_hensei(g) {
     if(accessory)
         out['accessory'] = accessory;
 
+    out['subskills'] = __hensei_load_subskill(pc['set_action']);
+    out['characters'] = __hensei_load_npc(deck['npc']);
+    out['weapons'] = __hensei_load_weapons(pc['weapons']);
+
+    return out;
+}
+
+function __hensei_load_subskill(set_action) {
     var subskillsOut = [];
-    var set_action = pc['set_action'];
-    for (var i = set_action.length - 1; i >= 0; i--) {
-        var obj = set_action[i];
+
+    for (var k in set_action) {
+        var obj = set_action[k];
         subskillsOut.push(obj['name']);
     }
-    out['subskills'] = subskillsOut;
-    
+
+    return subskillsOut;
+}
+
+function __hensei_load_npc(npc) {
     var charactersOut = [];
-    var npc = deck['npc'];
+
     for(k in npc) {
         var charOut = {};
         var obj = npc[k];
@@ -50,10 +53,21 @@ function __export_hensei(g) {
 
         charactersOut.push(charOut);
     }
-    out['characters'] = charactersOut;
+
+    return charactersOut;
+}
+
+function __hensei_load_weapons(weapons) {
+    const uncaps = [40, 60, 80, 100, 150];
+    const keyable = [
+        [13], 
+        [3, 13, 19, 26],
+        [3, 13, 26]
+    ];
+    const multielement = [13, 19];
 
     var weaponsOut = [];
-    var weapons = pc['weapons'];
+
     for(k in weapons) {
         var weaponOut = {};
         var obj = weapons[k];
@@ -120,11 +134,20 @@ function __export_hensei(g) {
 
         weaponsOut.push(weaponOut);
     }
-    out['weapons'] = weaponsOut;
 
-    return out;
+    return weaponsOut;
 }
+
+function __hensei_load_summons(summons) {
+    var summonsOut = [];
+    
+    for(k in summons) {
+
+    }
+    
+    return summonsOut;
+}
+
 
 var __hensei_out = __export_hensei(Game);
 __hensei_out
-
