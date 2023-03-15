@@ -1,4 +1,5 @@
-function __export_hensei(deck) {
+function __export_hensei(g) {
+    var deck = g.view.deck_model.attributes.deck;
     var name = deck['name'];
     
     var out = {};
@@ -6,6 +7,8 @@ function __export_hensei(deck) {
 
     out['name'] = name;
     out['class'] = pc['job']['master']['name'];
+    // TODO: shield
+    // TODO: manatura
 
     var subskillsOut = [];
     var set_action = pc['set_action'];
@@ -47,8 +50,13 @@ function __export_hensei(deck) {
         weaponsOut.push(weaponOut);
     }
     out['weapons'] = weaponsOut;
-    
-    alert(JSON.stringify(out));
+    // TODO: awakening
+    // TODO: ax
+    // TODO: modifiable skills
+    // TODO: handle ID'ing for multicolor weapons (ultima, ccw)
+
+    return out;
 }
 
-__export_hensei(Game.view.deck_model.attributes.deck);
+var __hensei_out = __export_hensei(Game);
+__hensei_out
