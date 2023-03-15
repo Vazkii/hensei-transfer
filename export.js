@@ -149,6 +149,18 @@ function __hensei_load_summons(summons) {
     return summonsOut;
 }
 
+function __hensei_clipboard_copy(str) {
+    var textarea = $('<textarea>');
+    $("body").append(textarea);
+
+    textarea.text(str); 
+    textarea.select();
+    document.execCommand("copy");
+    textarea.remove();
+
+    alert('Copied team data to clipboard!');
+}
+
 function __hensei_export(g) {
     var deck = g.view.deck_model.attributes.deck;
     var name = deck['name'];
@@ -172,8 +184,8 @@ function __hensei_export(g) {
     out['summons'] = __hensei_load_summons(pc['summons']);
     out['sub_summons'] = __hensei_load_summons(pc['sub_summons']);
 
-    return out;
+    var str = JSON.stringify(out);
+    __hensei_clipboard_copy(str);
 }
 
-var __hensei_out = __hensei_export(Game);
-__hensei_out
+__hensei_export(Game);
