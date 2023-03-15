@@ -1,27 +1,3 @@
-function __export_hensei(g) {
-    var deck = g.view.deck_model.attributes.deck;
-    var name = deck['name'];
-    
-    var out = {};
-    var pc = deck['pc'];
-
-    out['name'] = name;
-    out['class'] = pc['job']['master']['name'];
-    out['extra'] = pc['isExtraDeck'];
-
-    var accessory = pc['familiar_id'];
-    if(!accessory)
-        accessory = pc['shield_id']
-    if(accessory)
-        out['accessory'] = accessory;
-
-    out['subskills'] = __hensei_load_subskill(pc['set_action']);
-    out['characters'] = __hensei_load_npc(deck['npc']);
-    out['weapons'] = __hensei_load_weapons(pc['weapons']);
-
-    return out;
-}
-
 function __hensei_load_subskill(set_action) {
     var subskillsOut = [];
 
@@ -148,6 +124,29 @@ function __hensei_load_summons(summons) {
     return summonsOut;
 }
 
+function __hensei_export(g) {
+    var deck = g.view.deck_model.attributes.deck;
+    var name = deck['name'];
+    
+    var out = {};
+    var pc = deck['pc'];
 
-var __hensei_out = __export_hensei(Game);
+    out['name'] = name;
+    out['class'] = pc['job']['master']['name'];
+    out['extra'] = pc['isExtraDeck'];
+
+    var accessory = pc['familiar_id'];
+    if(!accessory)
+        accessory = pc['shield_id']
+    if(accessory)
+        out['accessory'] = accessory;
+
+    out['subskills'] = __hensei_load_subskill(pc['set_action']);
+    out['characters'] = __hensei_load_npc(deck['npc']);
+    out['weapons'] = __hensei_load_weapons(pc['weapons']);
+
+    return out;
+}
+
+var __hensei_out = __hensei_export(Game);
 __hensei_out
