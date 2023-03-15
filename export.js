@@ -27,6 +27,7 @@ function __export_hensei(deck) {
         charOut['id'] = master['id'];
         charOut['ringed'] = param['has_npcaugment_constant'];
         charOut['uncap'] = param['evolution'];
+        charOut['transcend'] = param['phase'];
 
         charactersOut.push(charOut);
     }
