@@ -40,8 +40,8 @@ function __hensei_load_weapons(weapons) {
     const uncaps = [40, 60, 80, 100, 150];
     const keyable = [
         [13], 
-        [3, 13, 19, 26],
-        [3, 13, 26]
+        [3, 13, 19, 27],
+        [3, 13, 27]
     ];
     const multielement = [13, 19];
 
@@ -105,7 +105,7 @@ function __hensei_load_weapons(weapons) {
                 var j = parseInt(i)+1;
                 var arrKey = `skill${j}`;
                 if(arrKey in obj)
-                    keys.push(obj[arrKey]['name']);
+                    keys.push(obj[arrKey]['id']);
             }
         }
         if(keys.length > 0)
