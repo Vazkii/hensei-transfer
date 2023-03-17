@@ -167,10 +167,12 @@ function __hensei_clipboard_copy(str) {
 function __hensei_export(g) {
     var deck = g.view.deck_model.attributes.deck;
     var name = deck['name'];
+    var lang = g.lang;
     
     var out = {};
     var pc = deck['pc'];
 
+    out['lang'] = lang;
     out['name'] = name;
     out['class'] = pc['job']['master']['name'];
     out['extra'] = pc['isExtraDeck'];

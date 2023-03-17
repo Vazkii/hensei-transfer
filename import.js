@@ -25,6 +25,7 @@ function __hensei_import(nextData) {
     alert('Loading your team now, this may take a bit...');
     var newIdResults =  __get_new_id(ctx);
     ctx['party'] = newIdResults['id'];
+    ctx['lang'] = input['lang'];
 
     __info(ctx, input['name'], input['extra']);
     __job(ctx, input['class'], input['subskills'], (('accessory' in input) ? input['accessory'] : ''));
@@ -54,7 +55,7 @@ function __info(ctx, name, extra) {
 
 function __job(ctx, name, subskills, accessory) {
     var id = __seek_id(ctx.data.jobs, function(j) {
-        return j['name']['en'] == name;
+        return j['name'][ctx['lang']] == name;
     });
     
     if(id.length > 0) {
@@ -66,8 +67,8 @@ function __job(ctx, name, subskills, accessory) {
             var i = 0;
             for(k in subskills) {
                 var ssName = subskills[k];
-                var ssId = __search(ctx, 'job_skills', {query: ssName, job: id, locale: 'en'}, function(s) {
-                    return s['name']['en'] == ssName;
+                var ssId = __search(ctx, 'job_skills', {query: ssName, job: id, locale: ctx['lang']}, function(s) {
+                    return s['name'][ctx['lang']] == ssName;
                 });
 
                 if(ssId.length > 0) {
@@ -211,7 +212,7 @@ function __summons(ctx, friend, summons, offset) {
 
     if(friend) {
         var smId = __search(ctx, 'summons', {query: friend}, function(c) {
-            return c['name']['en'] == friend;
+            return c['name'][ctx['lang']] == friend;
         });
 
         if(smId.length > 0)
