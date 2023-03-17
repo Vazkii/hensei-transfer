@@ -5,18 +5,20 @@ function __hensei_import(nextData) {
 
     var input = JSON.parse(userString);
     var data = nextData.props.pageProps.context;
+    if(data == null) {
+        alert('Please refresh the page to load important data, then try again.');
+        return;
+    }
+
     var auth = __get_auth();
-    var partyId = data.party.id;
 
     var ctx = {
         data: data,
-        party: partyId,
         auth: auth
     };
 
-    // TODO: support creating new team
-    // TODO: copy manatura and shield
-    // TODO: some sort of progress bar
+    var newIdResults =  __prompt_for_new(ctx, data.party.id);
+    ctx['party'] = newIdResults['id'];
 
     __info(ctx, input['name'], input['extra']);
     __job(ctx, input['class'], input['subskills'], (('accessory' in input) ? input['accessory'] : ''));
@@ -25,9 +27,25 @@ function __hensei_import(nextData) {
     __summons(ctx, input['friend_summon'], input['summons'], 0);
     __summons(ctx, undefined, input['sub_summons'], 5);
 
-    alert('Import complete, reloading');
+    var redirect = newIdResults['redirect'];
+    if(redirect.length > 0)
+        history.pushState({urlPath: redirect}, '', redirect);
     location.reload();
 }  
+
+function __prompt_for_new(ctx, curr) {
+    var resp = confirm('Is this a NEW team? Press OK if so. If you press Cancel, your current team (or last edited if you\'re in a new team screen) will be overwritten. Note that this may take a bit.');
+    if(resp) {
+        var newTeamData = __post(ctx, 'parties', {});
+        var newId = newTeamData.party.id;
+        var shortcode = newTeamData.party.shortcode;
+
+        var url = `/p/${shortcode}`;
+        return {id: newId, redirect: url };
+    }
+
+    return {id: curr, redirect: ''};
+}
 
 function __info(ctx, name, extra) {
     __put(ctx, 'parties', ctx.party, '', {party: {name: name, extra: extra}}, true);
@@ -242,8 +260,7 @@ function __get_auth() {
 }
 
 function __get_user_string() {
-    return '{"name":"Bennu","class":"Manadiver","extra":false,"friend_summon":"Tiamat Omega","accessory":3,"subskills":["Secret Triad","Wild Magica","Blind"],"characters":[{"name":"Estarriola","id":"3040163000","uncap":4},{"name":"Niyon","id":"3040038000","uncap":6,"transcend":5},{"name":"Lich","id":"3040427000","uncap":4},{"name":"Katzelia","id":"3040166000","uncap":4},{"name":"Tien","id":"3040039000","uncap":6,"transcend":2}],"weapons":[{"name":"Coruscant Crozier","id":"1040418000","uncap":4},{"name":"Last Storm Harp","id":"1040808300","uncap":4},{"name":"Last Storm Harp","id":"1040808300","uncap":4},{"name":"Spear of Renunciation","id":"1040212600","uncap":5,"keys":["1241","1734"]},{"name":"Ewiyar\'s Beak","id":"1040912400","uncap":4,"ax":[{"id":1591,"val":"4"},{"id":1594,"val":"5"}]},{"name":"Ewiyar\'s Beak","id":"1040912400","uncap":4,"ax":[{"id":1591,"val":"7"},{"id":1599,"val":"1.5"}]},{"name":"Innocent Love","id":"1040811600","uncap":5},{"name":"Mandjet","id":"1040315400","uncap":4,"awakening":{"type":1,"lvl":15}},{"name":"Mandjet","id":"1040315400","uncap":4,"awakening":{"type":1,"lvl":15}},{"name":"Ultima Staff","attr":2,"id":"1040410800","uncap":5,"keys":["731","758","1809"]}],"summons":[{"name":"Tiamat Omega","id":"2040020000","uncap":5},{"name":"Temperance","id":"2040316000","uncap":5},{"name":"Judgement","id":"2040322000","uncap":5},{"name":"Beelzebub","id":"2040408000","uncap":4},{"name":"Belial","id":"2040347000","uncap":4}],"sub_summons":[{"name":"Raphael","id":"2040202000","uncap":0},{"name":"Tiamat","id":"2040402000","uncap":0}]}';
-    //return prompt("Paste your Export here");
+    return prompt("Paste your Export here");
 }
 
 function __get(ctx, namespace, id, endpoint) {
@@ -271,7 +288,7 @@ function __fetch(ctx, method, endpoint, payload, async) {
 
     if(async)
         return '';
-    
+
     return JSON.parse(xhr.responseText);
 }
 
