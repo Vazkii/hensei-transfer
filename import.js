@@ -1,10 +1,10 @@
-function __hensei_import() {
+function __hensei_import(nextData) {
     var userString = __get_user_string();
     if(!userString)
         return;
 
     var input = JSON.parse(userString);
-    var data = __get_data();
+    var data = nextData.props.pageProps.context;
     var auth = __get_auth();
     var partyId = data.party.id;
 
@@ -19,7 +19,7 @@ function __hensei_import() {
     // TODO: some sort of progress bar
 
     __info(ctx, input['name'], input['extra']);
-    __job(ctx, input['class'], input['subskills']);
+    __job(ctx, input['class'], input['subskills'], (('accessory' in input) ? input['accessory'] : ''));
     __chars(ctx, input['characters']);
     __weapons(ctx, input['weapons']);
     __summons(ctx, input['friend_summon'], input['summons'], 0);
@@ -30,16 +30,16 @@ function __hensei_import() {
 }  
 
 function __info(ctx, name, extra) {
-    __put(ctx, 'parties', ctx.party, '', {party: {name: name, extra: extra}});
+    __put(ctx, 'parties', ctx.party, '', {party: {name: name, extra: extra}}, true);
 }
 
-function __job(ctx, name, subskills) {
+function __job(ctx, name, subskills, accessory) {
     var id = __seek_id(ctx.data.jobs, function(j) {
         return j['name']['en'] == name;
     });
     
     if(id.length > 0) {
-        __put(ctx, 'parties', ctx.party, 'jobs', {party: {job_id: id}});
+        __put(ctx, 'parties', ctx.party, 'jobs', {party: {job_id: id}}, false);
 
         if(subskills.length > 0) {
             var subskillsObj = {};
@@ -61,14 +61,22 @@ function __job(ctx, name, subskills) {
             for(k in subskillsObj) {
                 var send = {};
                 send[k] = subskillsObj[k];
-                var res = __put(ctx, 'parties', ctx.party, 'job_skills', {party: send});
+                var res = __put(ctx, 'parties', ctx.party, 'job_skills', {party: send}, false);
                 
                 if('code' in res)
                     failures.push(send);
             }
 
             for(k in failures)
-                __put(ctx, 'parties', ctx.party, 'job_skills', {party: failures[k]});
+                __put(ctx, 'parties', ctx.party, 'job_skills', {party: failures[k]}, true);
+        }
+
+        if(accessory) {
+            var options = __get(ctx, 'jobs', id, 'accessories');
+            var accId = __seek_id(options, function(a) {
+                return a['granblue_id'] == accessory;
+            });
+            __put(ctx, 'parties', ctx.party, '', {party: {accessory_id: accId}});
         }
     }
 }
@@ -95,10 +103,10 @@ function __chars(ctx, chars) {
 
             var gcId = gridChr['id'];
             if('ringed' in obj && obj['ringed'])
-                __put(ctx, 'grid_characters', gcId, '', {character: {perpetuity: true}});
+                __put(ctx, 'grid_characters', gcId, '', {character: {perpetuity: true}}, true);
 
             if('transcend' in obj)
-                __put(ctx, 'grid_characters', gcId, '', {character: {uncap_level: 6, transcendence_step: obj['transcend']}});
+                __put(ctx, 'grid_characters', gcId, '', {character: {uncap_level: 6, transcendence_step: obj['transcend']}}, true);
 
             i++;
         }
@@ -132,13 +140,13 @@ function __weapons(ctx, weapons) {
 
             var gwId = gridWpn['grid_weapon']['id'];
             if('attr' in obj)
-                __put(ctx, 'grid_weapons', gwId, '', {weapon: {element: elementMapping[obj['attr'] + 1]}});
+                __put(ctx, 'grid_weapons', gwId, '', {weapon: {element: elementMapping[obj['attr'] + 1]}}, true);
             if('awakening' in obj) {
                 var awakening = obj['awakening'];
                 var awkType = awakening['type'];
                 var awkLvl = awakening['lvl'];
 
-                __put(ctx, 'grid_weapons', gwId, '', {weapon: {awakening_type: awkType, awakening_level: awkLvl}});
+                __put(ctx, 'grid_weapons', gwId, '', {weapon: {awakening_type: awkType, awakening_level: awkLvl}}, true);
             }
 
             // TODO: keys
@@ -176,7 +184,7 @@ function __summons(ctx, friend, summons, offset) {
             var gsId = gridSum['grid_summon']['id'];
 
             if('transcend' in obj)
-                __put(ctx, 'grid_summons', gsId, '', {summon: {uncap_level: 6, transcendence_step: obj['transcend']}});            
+                __put(ctx, 'grid_summons', gsId, '', {summon: {uncap_level: 6, transcendence_step: obj['transcend']}}, true);
 
             i++;
         }
@@ -233,30 +241,38 @@ function __get_auth() {
         return match[1];
 }
 
-function __get_data() {
-    return JSON.parse(document.querySelector('\u0023__NEXT_DATA__').text).props.pageProps.context;
-}
-
 function __get_user_string() {
-    return prompt("Paste your Export here");
+    return '{"name":"Bennu","class":"Manadiver","extra":false,"friend_summon":"Tiamat Omega","accessory":3,"subskills":["Secret Triad","Wild Magica","Blind"],"characters":[{"name":"Estarriola","id":"3040163000","uncap":4},{"name":"Niyon","id":"3040038000","uncap":6,"transcend":5},{"name":"Lich","id":"3040427000","uncap":4},{"name":"Katzelia","id":"3040166000","uncap":4},{"name":"Tien","id":"3040039000","uncap":6,"transcend":2}],"weapons":[{"name":"Coruscant Crozier","id":"1040418000","uncap":4},{"name":"Last Storm Harp","id":"1040808300","uncap":4},{"name":"Last Storm Harp","id":"1040808300","uncap":4},{"name":"Spear of Renunciation","id":"1040212600","uncap":5,"keys":["1241","1734"]},{"name":"Ewiyar\'s Beak","id":"1040912400","uncap":4,"ax":[{"id":1591,"val":"4"},{"id":1594,"val":"5"}]},{"name":"Ewiyar\'s Beak","id":"1040912400","uncap":4,"ax":[{"id":1591,"val":"7"},{"id":1599,"val":"1.5"}]},{"name":"Innocent Love","id":"1040811600","uncap":5},{"name":"Mandjet","id":"1040315400","uncap":4,"awakening":{"type":1,"lvl":15}},{"name":"Mandjet","id":"1040315400","uncap":4,"awakening":{"type":1,"lvl":15}},{"name":"Ultima Staff","attr":2,"id":"1040410800","uncap":5,"keys":["731","758","1809"]}],"summons":[{"name":"Tiamat Omega","id":"2040020000","uncap":5},{"name":"Temperance","id":"2040316000","uncap":5},{"name":"Judgement","id":"2040322000","uncap":5},{"name":"Beelzebub","id":"2040408000","uncap":4},{"name":"Belial","id":"2040347000","uncap":4}],"sub_summons":[{"name":"Raphael","id":"2040202000","uncap":0},{"name":"Tiamat","id":"2040402000","uncap":0}]}';
+    //return prompt("Paste your Export here");
 }
 
-function __put(ctx, namespace, id, endpoint, payload) {
-    return __fetch(ctx, 'PUT', `${namespace}/${id}/${endpoint}`, payload);
+function __get(ctx, namespace, id, endpoint) {
+    return __fetch(ctx, 'GET', `${namespace}/${id}/${endpoint}`, undefined, false);
+}
+
+function __put(ctx, namespace, id, endpoint, payload, async) {
+    return __fetch(ctx, 'PUT', `${namespace}/${id}/${endpoint}`, payload, async);
 }
 
 function __post(ctx, endpoint, payload) {
-    return __fetch(ctx, 'POST', endpoint, payload);
+    return __fetch(ctx, 'POST', endpoint, payload, false);
 }
 
-function __fetch(ctx, method, endpoint, payload) {
+function __fetch(ctx, method, endpoint, payload, async) {
     var xhr = new XMLHttpRequest();
     var url = `https://hensei-api-production-66fb.up.railway.app/api/v1/${endpoint}`;
-    xhr.open(method, url, false);
+    xhr.open(method, url, async);
     xhr.setRequestHeader('content-type', 'application/json')
     xhr.setRequestHeader('authorization', `Bearer ${ctx.auth}`)
-    xhr.send(JSON.stringify(payload));
+    
+    if(payload != undefined)
+        xhr.send(JSON.stringify(payload));
+    else xhr.send();
+
+    if(async)
+        return '';
+    
     return JSON.parse(xhr.responseText);
 }
 
-__hensei_import();
+__hensei_import(__NEXT_DATA__);
