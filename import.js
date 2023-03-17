@@ -17,27 +17,31 @@ function __hensei_import(nextData) {
     };
 
     var userString = __get_user_string();
-    if(!userString)
+    if(!userString || userString.length == 0)
         return;
 
     var input = JSON.parse(userString);
 
-    alert('Loading your team now, this may take a bit...');
-    var newIdResults =  __get_new_id(ctx);
-    ctx['party'] = newIdResults['id'];
-    ctx['lang'] = input['lang'];
+    document.querySelectorAll('*').forEach((e) => e.style.cursor = 'wait');
+    document.querySelector('span.Text').innerHTML = '<span style="color:cyan;font-size:22px;">Loading your team... this may take a bit</span>';
 
-    __info(ctx, input['name'], input['extra']);
-    __job(ctx, input['class'], input['subskills'], (('accessory' in input) ? input['accessory'] : ''));
-    __chars(ctx, input['characters']);
-    __weapons(ctx, input['weapons']);
-    __summons(ctx, input['friend_summon'], input['summons'], 0);
-    __summons(ctx, undefined, input['sub_summons'], 5);
+    setTimeout(function() {
+        var newIdResults =  __get_new_id(ctx);
+        ctx['party'] = newIdResults['id'];
+        ctx['lang'] = input['lang'];
 
-    var redirect = newIdResults['redirect'];
-    if(redirect.length > 0)
-        history.pushState({urlPath: redirect}, '', redirect);
-    //location.reload();
+        __info(ctx, input['name'], input['extra']);
+        __job(ctx, input['class'], input['subskills'], (('accessory' in input) ? input['accessory'] : ''));
+        __chars(ctx, input['characters']);
+        __weapons(ctx, input['weapons']);
+        __summons(ctx, input['friend_summon'], input['summons'], 0);
+        __summons(ctx, undefined, input['sub_summons'], 5);
+
+        var redirect = newIdResults['redirect'];
+        if(redirect.length > 0)
+            history.pushState({urlPath: redirect}, '', redirect);
+        location.reload();
+    }, 250);
 }  
 
 function __get_new_id(ctx) {

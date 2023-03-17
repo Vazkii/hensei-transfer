@@ -93,7 +93,7 @@ function __hensei_load_weapons(weapons) {
                 var augmentObj = actualAugment[k2];
 
                 axOut['id'] = `${augmentObj['skill_id']}`;
-                axOut['val'] = augmentObj['effect_value'];
+                axOut['val'] = augmentObj['show_value'];
                 ax.push(axOut);
             }
             weaponOut['ax'] = ax;
