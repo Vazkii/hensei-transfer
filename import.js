@@ -37,7 +37,7 @@ function __hensei_import(nextData) {
     var redirect = newIdResults['redirect'];
     if(redirect.length > 0)
         history.pushState({urlPath: redirect}, '', redirect);
-    location.reload();
+    //location.reload();
 }  
 
 function __get_new_id(ctx) {
@@ -92,7 +92,7 @@ function __job(ctx, name, subskills, accessory) {
         }
 
         if(accessory) {
-            var options = __get(ctx, 'jobs', id, 'accessories');
+            var options = __get(ctx, `jobs/${id}/accessories`);
             var accId = __seek_id(options, function(a) {
                 return a['granblue_id'] == accessory;
             });
@@ -135,6 +135,7 @@ function __chars(ctx, chars) {
 
 function __weapons(ctx, weapons) {
     const elementMapping = [0, 2, 3, 4, 1, 6, 5];
+    const keyMapping = { k13001: '1240', k13002: '1241', k13003: '1242', k13004: '1243', k14014: '1723', k14015: '1724', k14016: '1725', k14017: '1726', k10001: '697-706', k10002: '707-716', k10003: '717-726', k10004: '727-736', k10005: '737-746', k10006: '747-756', k11001: '758', k11002: '759', k11003: '760', k11004: '761', k17001: '1807', k17002: '1808', k17003: '1809', k17004: '1810',   k15001: '1446', k15002: '1447', k15003: '1448', k15004: '1449', k15005: '1450', k15006: '1451', k15007: '1452', k16001: '1228-1233', k16002: '1234-1239', k14001: ['502-506', '1213-1218'], k14002: ['130-135', '71-76'], k14003: ['1260-1265', '1266-1271'], k14004: ['1199-1204', '1205-1210'], k14011: ['322-327', '1310-1315'], k14012: ['764-769', '1731-1735', '948'], k14013: ['1171-1176', '1736-1741'] };
     var i = 0;
     for(k in weapons) {
         var obj = weapons[k];
@@ -169,7 +170,51 @@ function __weapons(ctx, weapons) {
                 __put(ctx, 'grid_weapons', gwId, '', {weapon: {awakening_type: awkType, awakening_level: awkLvl}}, true);
             }
 
-            // TODO: keys
+            if('keys' in obj) {
+                var keys = obj['keys'];
+                var series = gridWpn['grid_weapon']['object']['series'];
+                for(k2 in keys) {
+                    var keyGbfId = keys[k2];
+
+                    var options = __get(ctx, `weapon_keys?series=${series}&slot=${k2}`);
+                    var keyId = __seek_id(options, function(o) {
+                        var itemId = o['granblue_id'];
+                        var mappingKey = `k${itemId}`;
+
+                        if(mappingKey in keyMapping) {
+                            var mapping = keyMapping[mappingKey];
+
+                            function __parse(val) {
+                                if(val.includes('-')) {
+                                    var toks = val.split('-');
+                                    var left = parseInt(toks[0]);
+                                    var right = parseInt(toks[1]);
+                                    return keyGbfId >= left && keyGbfId <= right;
+                                }
+
+                                return parseInt(val) == keyGbfId;
+                            }
+
+                            if(typeof mapping == 'string')
+                                return __parse(mapping);
+                            else for(k3 in mapping) {
+                                var mappingElm = mapping[k3];
+                                if(__parse(mappingElm))
+                                    return true;
+                            }
+                        }
+                        
+                        return false;
+                    });
+
+                    var k3 = parseInt(k2) + 1;
+                    var reqKey = `weapon_key${k3}_id`;
+                    var req = {};
+                    req[reqKey] = keyId;
+                    __put(ctx, 'grid_weapons', gwId, '', {weapon: req}, true);
+                }
+            }
+            
 
             i++;
         }
@@ -265,8 +310,8 @@ function __get_user_string() {
     return prompt("Paste your Export here");
 }
 
-function __get(ctx, namespace, id, endpoint) {
-    return __fetch(ctx, 'GET', `${namespace}/${id}/${endpoint}`, undefined, false);
+function __get(ctx, endpoint) {
+    return __fetch(ctx, 'GET', endpoint, undefined, false);
 }
 
 function __put(ctx, namespace, id, endpoint, payload, async) {
