@@ -1,9 +1,4 @@
 function __hensei_import(nextData) {
-    var userString = __get_user_string();
-    if(!userString)
-        return;
-
-    var input = JSON.parse(userString);
     var data = nextData.props.pageProps.context;
     if(data == null) {
         alert('Please refresh the page to load important data, then try again.');
@@ -11,13 +6,24 @@ function __hensei_import(nextData) {
     }
 
     var auth = __get_auth();
+    if(!auth) {
+        alert('This import script only works for logged-in users, please log-in or create an account.');
+        return;
+    }
 
     var ctx = {
         data: data,
         auth: auth
     };
 
-    var newIdResults =  __prompt_for_new(ctx, data.party.id);
+    var userString = __get_user_string();
+    if(!userString)
+        return;
+
+    var input = JSON.parse(userString);
+
+    alert('Loading your team now, this may take a bit...');
+    var newIdResults =  __get_new_id(ctx);
     ctx['party'] = newIdResults['id'];
 
     __info(ctx, input['name'], input['extra']);
@@ -33,18 +39,13 @@ function __hensei_import(nextData) {
     location.reload();
 }  
 
-function __prompt_for_new(ctx, curr) {
-    var resp = confirm('Is this a NEW team? Press OK if so. If you press Cancel, your current team (or last edited if you\'re in a new team screen) will be overwritten. Note that this may take a bit.');
-    if(resp) {
-        var newTeamData = __post(ctx, 'parties', {});
-        var newId = newTeamData.party.id;
-        var shortcode = newTeamData.party.shortcode;
+function __get_new_id(ctx) {
+    var newTeamData = __post(ctx, 'parties', {});
+    var newId = newTeamData.party.id;
+    var shortcode = newTeamData.party.shortcode;
 
-        var url = `/p/${shortcode}`;
-        return {id: newId, redirect: url };
-    }
-
-    return {id: curr, redirect: ''};
+    var url = `/p/${shortcode}`;
+    return {id: newId, redirect: url };
 }
 
 function __info(ctx, name, extra) {
