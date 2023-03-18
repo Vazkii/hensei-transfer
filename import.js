@@ -5,6 +5,11 @@ function __hensei_import(nextData) {
         return;
     }
 
+    if(data.jobs == undefined || data.jobs == null) {
+        alert('Some data needed to create a team is missing, please open a team that already exists and press F5, and then run the script again. This will not overwrite your team. You can offset this by bookmarking the New team page and running the script from there.');
+        return;
+    }
+
     var auth = __get_auth();
     if(!auth) {
         alert('This import script only works for logged-in users, please log-in or create an account.');
@@ -12,7 +17,7 @@ function __hensei_import(nextData) {
     }
 
     var ctx = {
-        data: data,
+        jobs: data.jobs,
         auth: auth
     };
 
@@ -58,7 +63,7 @@ function __info(ctx, name, extra) {
 }
 
 function __job(ctx, name, subskills, accessory) {
-    var id = __seek_id(ctx.data.jobs, function(j) {
+    var id = __seek_id(ctx.jobs, function(j) {
         return j['name'][ctx['lang']] == name;
     });
     
