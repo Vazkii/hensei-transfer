@@ -18,6 +18,9 @@ function __hensei_load_npc(npc) {
         var master = obj['master'];
         var param = obj['param'];
         
+        if(master == undefined || master == null)
+            continue;
+
         charOut['name'] = master['name'];
         charOut['id'] = master['id'];
         charOut['uncap'] = parseInt(param['evolution']);
