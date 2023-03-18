@@ -324,6 +324,9 @@ function __seek_id(arr, filter) {
             return obj['id'];
     }
 
+    if(arr == null || arr == undefined || arr.length == 0)
+        return '';
+
     return arr[0]['id'];
 }
 
