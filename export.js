@@ -18,7 +18,7 @@ function __hensei_load_npc(npc) {
         var master = obj['master'];
         var param = obj['param'];
         
-        if(master == undefined || master == null)
+        if(!master || !param)
             continue;
 
         charOut['name'] = master['name'];
@@ -130,6 +130,9 @@ function __hensei_load_summons(summons) {
         var obj = summons[k];
         var master = obj['master'];
         var param = obj['param'];
+
+        if(!master || !param)
+            continue;
 
         summonOut['name'] = master['name'];
         summonOut['id'] = master['id'];
