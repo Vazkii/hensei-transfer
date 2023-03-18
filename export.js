@@ -167,8 +167,8 @@ function __hensei_clipboard_copy(str) {
     document.execCommand("copy");
     textarea.remove();
 
-    alert('Copied team data to clipboard! A new tab in app.granblue.team will be open now - click the bookmark again on it and paste your data in there.');
-    window.open("https://app.granblue.team", "_blank");
+    if(confirm('Copied team data to clipboard! If you press OK, a new tab in app.granblue.team will be open now - click the bookmark again on it and paste your data in there.'))
+        window.open("https://app.granblue.team", "_blank");
 }
 
 function __hensei_export(g) {
