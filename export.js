@@ -46,7 +46,7 @@ function __hensei_load_weapons(weapons) {
         [3, 13, 19, 27],
         [3, 13, 27]
     ];
-    const multielement = [13, 19];
+    const multielement = [13, 17, 19];
 
     var weaponsOut = [];
 
