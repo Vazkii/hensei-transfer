@@ -28,7 +28,9 @@ function __hensei_import(nextData) {
     var input = JSON.parse(userString);
 
     document.querySelectorAll('*').forEach((e) => e.style.cursor = 'wait');
-    document.querySelector('span.Text').innerHTML = '<span style="color:cyan;font-size:22px;">Loading your team... this may take a bit</span>';
+    var buttonText = document.querySelector('span[class^="Button_text__"]')
+    if(buttonText)
+        buttonText.innerHTML = '<span style="color:cyan;font-size:22px;">Loading your team... this may take a bit</span>';
 
     setTimeout(function() {
         var newIdResults =  __get_new_id(ctx);
