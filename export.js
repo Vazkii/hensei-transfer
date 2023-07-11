@@ -82,7 +82,7 @@ function __hensei_load_weapons(weapons) {
         var arousal = param['arousal'];
         if(arousal['is_arousal_weapon']) {
             var awakening = {};
-            awakening['type'] = arousal['form'];
+            awakening['type'] = arousal['form_name'];
             awakening['lvl'] = arousal['level'];
             weaponOut['awakening'] = awakening;
         }

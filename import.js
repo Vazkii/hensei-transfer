@@ -175,12 +175,24 @@ function __weapons(ctx, weapons) {
             var gwId = gridWpn['grid_weapon']['id'];
             if('attr' in obj)
                 __put(ctx, 'grid_weapons', gwId, '', {weapon: {element: elementMapping[obj['attr'] + 1]}}, true);
+
             if('awakening' in obj) {
                 var awakening = obj['awakening'];
                 var awkType = awakening['type'];
                 var awkLvl = awakening['lvl'];
 
-                __put(ctx, 'grid_weapons', gwId, '', {weapon: {awakening_type: awkType, awakening_level: awkLvl}}, true);
+                var awkOptions = gridWpn['grid_weapon']['object']['awakenings'];
+                var awkObj = null;
+                for(var j = 0; j < awkOptions.length; j++) {
+                    var awkOption = awkOptions[j];
+                    if(awkOption['name'][ctx['lang']] == awkType) {
+                        awkObj = awkOption;
+                        break;
+                    }
+                }
+
+                if(awkObj)
+                    __put(ctx, 'grid_weapons', gwId, '', {weapon: {awakening_id: awkObj['id'], awakening_level: awkLvl}}, true);
             }
 
             if('keys' in obj) {
