@@ -310,7 +310,8 @@ function __summons(ctx, friend, summons, offset) {
                 'party_id': ctx.party,
                 'position': 6,
                 'main': false,
-                'friend': true
+                'friend': true,
+                'uncap_level': 0 // TODO
             }});
     }
 }
