@@ -1,16 +1,31 @@
 import requests
 
 def get_temp():
-	with open('aio.js') as f:
-		aiojs = f.read()
+	aiojs = read_file('aio.js')
+	exportjs = read_file('export.js')
+	importjs = read_file('import.js')
+	version = incr_version()
 
-		with open('export.js') as f1:
-			exportjs = f1.read()
-			with open('import.js') as f2:
-				importjs = f2.read()
-				aiojs = aiojs.replace('//GBFTOJSON', exportjs)
-				aiojs = aiojs.replace('//JSONTOHENSEI', importjs)
-				return aiojs
+	aiojs = aiojs.replace('//GBF-TO-JSON', exportjs)
+	aiojs = aiojs.replace('//JSON-TO-HENSEI', importjs)
+	aiojs = aiojs.replace('//HENSEI-TRANSFER-VERSION', 'var version = ' + version + ';')
+
+	return aiojs
+
+def incr_version():
+	version = int(read_file('version').strip())
+	version += 1
+
+	version = str(version)
+
+	with open('version', 'w') as f:
+		f.write(version)
+
+	return version
+
+def read_file(fname):
+	with open(fname) as f:
+		return f.read()
 
 def minify(temp):
 	url = 'https://www.toptal.com/developers/javascript-minifier/api/raw'
