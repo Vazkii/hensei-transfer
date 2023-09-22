@@ -120,7 +120,7 @@ function __hensei_load_weapons(weapons) {
     return weaponsOut;
 }
 
-function __hensei_load_summons(summons) {
+function __hensei_load_summons(summons, qsID) {
     const transcendences = [210, 220, 230, 240];
 
     var summonsOut = [];
@@ -152,6 +152,12 @@ function __hensei_load_summons(summons) {
             summonOut['transcend'] = trans;
         }
 
+        if(qsID) {
+            var paramID = param['id'];
+            if(paramID == qsID)
+                summonOut['qs'] = true;
+        }
+        
         summonsOut.push(summonOut);
     }
     
@@ -194,8 +200,8 @@ function __hensei_export(g) {
     out['subskills'] = __hensei_load_subskill(pc['set_action']);
     out['characters'] = __hensei_load_npc(deck['npc']);
     out['weapons'] = __hensei_load_weapons(pc['weapons']);
-    out['summons'] = __hensei_load_summons(pc['summons']);
-    out['sub_summons'] = __hensei_load_summons(pc['sub_summons']);
+    out['summons'] = __hensei_load_summons(pc['summons'], pc['quick_user_summon_id']);
+    out['sub_summons'] = __hensei_load_summons(pc['sub_summons'], 0);
 
     var str = JSON.stringify(out);
     __hensei_clipboard_copy(str);
