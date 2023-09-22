@@ -9,7 +9,8 @@
 	function __hensei_transfer_version_check() {
 		//HENSEI-TRANSFER-VERSION
 		var xhr = new XMLHttpRequest();
-	    var url = 'https://raw.githubusercontent.com/Vazkii/hensei-transfer/main/version';
+		var time = new Date().getTime();
+	    var url = 'https://raw.githubusercontent.com/Vazkii/hensei-transfer/main/version?_anti_cache_measures=' + time;
 		xhr.open('GET', url, false);
 		xhr.send();
 
