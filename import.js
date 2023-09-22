@@ -290,7 +290,7 @@ function __summons(ctx, friend, summons, offset) {
             var gsId = gridSum['grid_summon']['id'];
 
             if('transcend' in obj)
-                __put(ctx, 'grid_summons', gsId, '', {summon: {uncap_level: 6, transcendence_step: obj['transcend']}}, true);
+                __update_summon_level(ctx, gsId, 6, obj['transcend']);
 
             if('qs' in obj && obj['qs'])
                 __post(ctx, 'summons/update_quick_summon', {summon: {id: gsId, 'quick_summon': true}});
@@ -318,9 +318,13 @@ function __summons(ctx, friend, summons, offset) {
             var allowedUncaps = frSmObj['grid_summon']['object']['uncap'];
             var uncapLvl = (allowedUncaps['xlb'] ? 6 : (allowedUncaps['ulb'] ? 5 : (allowedUncaps['flb'] ? 4 : 3)));
             var transcend = (uncapLvl == 6 ? 5 : 0);
-            __post(ctx, 'summons/update_uncap', {summon: {id: frSmId, 'uncap_level': uncapLvl, 'transcendence_step': transcend}});
+            __update_summon_level(ctx, frSmId, uncapLvl, transcend);
         }
     }
+}
+
+function __update_summon_level(ctx, smId, lvl, transcend) {
+    __post(ctx, 'summons/update_uncap', {summon: {id: smId, 'uncap_level': lvl, 'transcendence_step': transcend}});
 }
 
 function __add_and_fix_conflicts(ctx, namespace, pos, data) {
