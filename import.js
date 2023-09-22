@@ -292,6 +292,9 @@ function __summons(ctx, friend, summons, offset) {
             if('transcend' in obj)
                 __put(ctx, 'grid_summons', gsId, '', {summon: {uncap_level: 6, transcendence_step: obj['transcend']}}, true);
 
+            if('qs' in obj && obj['qs'])
+                __post(ctx, 'summons/update_quick_summon', {summon: {id: gsId, 'quick_summon': true}});
+
             i++;
         }
     }
