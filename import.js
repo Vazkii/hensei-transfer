@@ -304,15 +304,22 @@ function __summons(ctx, friend, summons, offset) {
             return c['name'][ctx['lang']] == friend;
         });
 
-        if(smId.length > 0)
-             __add_and_fix_conflicts(ctx, 'summons', pos, {summon: {
+        if(smId.length > 0) {
+            var frSmObj =  __add_and_fix_conflicts(ctx, 'summons', pos, {summon: {
                 'summon_id': smId,
                 'party_id': ctx.party,
                 'position': 6,
                 'main': false,
                 'friend': true,
-                'uncap_level': 0 // TODO
+                'uncap_level': 0
             }});
+
+            var frSmId = frSmObj['grid_summon']['id'];
+            var allowedUncaps = frSmObj['grid_summon']['object']['uncap'];
+            var uncapLvl = (allowedUncaps['xlb'] ? 6 : (allowedUncaps['ulb'] ? 5 : (allowedUncaps['flb'] ? 4 : 3)));
+            var transcend = (uncapLvl == 6 ? 5 : 0);
+            __post(ctx, 'summons/update_uncap', {summon: {id: frSmId, 'uncap_level': uncapLvl, 'transcendence_step': transcend}});
+        }
     }
 }
 
