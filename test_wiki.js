@@ -1,4 +1,6 @@
-function __hensei_load_subskill(set_action) {
+javascript:(function() {
+	function __gbf_export() {
+		function __hensei_load_subskill(set_action) {
     var subskillsOut = [];
 
     for (var k in set_action) {
@@ -170,14 +172,11 @@ function __hensei_clipboard_copy(str) {
 
     textarea.text(str); 
     textarea.select();
-    document.execCommand("copy");
+    document.execCommand('copy');
     textarea.remove();
-
-    if(confirm('Copied team data to clipboard! If you press OK, a new tab in app.granblue.team will be open now - click the bookmark again on it and paste your data in there.'))
-        window.open("https://app.granblue.team", "_blank");
 }
 
-function __hensei_export(g) {
+function __hensei_export(g, callback) {
     var deck = g.view.deck_model.attributes.deck;
     var name = deck['name'];
     var lang = g.lang;
@@ -204,7 +203,37 @@ function __hensei_export(g) {
     out['sub_summons'] = __hensei_load_summons(pc['sub_summons'], 0);
 
     var str = JSON.stringify(out);
-    __hensei_clipboard_copy(str);
+    callback(str);
+}
+		__hensei_export(Game, function(str) {
+			function convert_to_wiki(str) {
+    return str;
+}
+			str = convert_to_wiki(str);
+			__hensei_clipboard_copy(str);
+			alert('Copied team data to clipboard!');
+		});
+	}
+
+	function __hensei_transfer_version_check() {
+	var version = 12;
+	var xhr = new XMLHttpRequest();
+	var time = new Date().getTime();
+	var url = 'https://raw.githubusercontent.com/Vazkii/hensei-transfer/main/version?_anti_cache_measures=' + time;
+	xhr.open('GET', url, false);
+	xhr.send();
+
+	var resp = xhr.response.trim();
+	return version == resp;
 }
 
-__hensei_export(Game);
+if(!__hensei_transfer_version_check())
+	if(confirm('hensei-transfer has received an update. Please re-download the bookmarklet to ensure it\'s compatible with the latest changes, or click Cancel to proceed anyway.')) {
+		window.open("https://github.com/Vazkii/hensei-transfer", "_blank");
+		return;	
+	}
+
+	if(window.location.href.includes('game.granbluefantasy.jp'))
+		__gbf_export();
+	else alert('Can only be used in game.granbluefantasy.jp');
+})();
