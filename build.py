@@ -51,12 +51,12 @@ def output(name, contents):
 def main():
 	version = incr_version()
 
-	build('test_aio', get_aio(version))
-	build('test_wiki', get_wiki(version))
+	build('bookmark_aio', get_aio(version))
+	build('bookmark_wiki', get_wiki(version))
 
 def build(name, content):
 	minified = minify(content)
-	output(name, content)
+	output(name, minified)
 
 if __name__ == '__main__':
 	main()
