@@ -75,8 +75,7 @@ function convert_to_wiki(str) {
     if(obj.lang != 'en')
         return 'Please change your game to English before exporting.';
 
-    var str = '=== ' + obj.name + ' ===';
-    str += '\n{{TeamSpread';
+    var str = '{{TeamSpread';
     str += '\n|team=' + get_team(obj);
     str += '\n|weapons=' + get_grid(obj);
     str += '\n|summons=' + get_summons(obj);
