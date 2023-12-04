@@ -63,6 +63,8 @@ const key_mappings = {
     wind: '1450',
     light: '1451',
     dark: '1452',
+    fortitude: '2043-2048',
+    magnitude: '2049-2045',
 
     // Draconic s3
     primal: '1228-1233',
