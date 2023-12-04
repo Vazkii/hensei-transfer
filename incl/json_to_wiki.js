@@ -21,6 +21,14 @@ const summon_art_changes = {
     'Zeus': 5,
     'Hades': 5,
 };
+const draconic_provenance_names = [
+    'Refrain of Blazing Vigor',
+    'Judgment of Torrential Tides',
+    'Bounty of Gracious Earth',
+    'Prayer of Grand Gales',
+    'Radiance of Insightful Rebirth',
+    'Festering of Mournful Obsequies'
+];
 const key_mappings = { 
     // Opus and Ultima s2
     auto:  ['1240', '758'],
@@ -64,7 +72,7 @@ const key_mappings = {
     light: '1451',
     dark: '1452',
     fortitude: '2043-2048',
-    magnitude: '2049-2045',
+    magnitude: '2049-2055',
 
     // Draconic s3
     primal: '1228-1233',
@@ -106,6 +114,9 @@ function get_team(obj) {
     for(var i in obj.subskills) {
         var ss = obj.subskills[i];
         var n = parseInt(i) + 1;
+        if(ss == null || ss == 'null')
+            break;
+        
         str += '\n|skill' + n + '=' + ss;
     }
 
@@ -150,7 +161,7 @@ function get_grid(obj) {
                 ultima = wp;
             else if(wp.name.includes('iation'))
                 opus = wp;
-            else if(wp.name.includes('Draconic'))
+            else if(wp.name.includes('Draconic') || draconic_provenance_names.includes(wp.name))
                 draconic = wp;
         }
     }
@@ -192,7 +203,7 @@ function map_key_id(id) {
         }
     }
 
-    return '';
+    return 'UNKNOWN';
 }
 
 function is_right_key(val, id) {
