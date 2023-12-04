@@ -43,8 +43,8 @@ function __hensei_load_weapons(weapons) {
     const uncaps = [40, 60, 80, 100, 150];
     const keyable = [
         [13], 
-        [3, 13, 19, 27],
-        [3, 13, 27]
+        [3, 13, 19, 27, 40],
+        [3, 13, 27, 40]
     ];
     const multielement = [13, 17, 19];
 
