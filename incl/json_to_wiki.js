@@ -31,10 +31,10 @@ const draconic_provenance_names = [
 ];
 const key_mappings = { 
     // Opus and Ultima s2
-    auto:  ['1240', '758'],
-    skill: ['1241', '759'],
-    ougi: ['1242', '760'],
-    cb: ['1243', '761'],
+    auto:  ['1240', '758', '2204', '2208'],
+    skill: ['1241', '759', '2205', '2209'],
+    ougi: ['1242', '760', '2206', '2210'],
+    cb: ['1243', '761', '2207', '2211'],
 
     // Opus s3 and some Ultima s1
     stamina: ['502-507', '1213-1218', '727-736'],
@@ -50,6 +50,11 @@ const key_mappings = {
     apple: '1724',
     depravity: '1725',
     echo: '1726',
+
+    // Super Faa Keys
+    extremity: '2212-2223', 
+    sagacity: '2224-2235', 
+    supremacy: '2236-2247',
 
     // Ultima s1
     atk: '697-706',
@@ -149,7 +154,10 @@ function get_grid(obj) {
         if('attr' in wp)
             str += ' (' + elements[wp.attr] + ')';
 
-        str += '|' + u + '=' + wp.uncap;
+        var uncap = wp.uncap;
+        if('transcend' in wp)
+            uncap = 't' + wp.transcend;
+        str += '|' + u + '=' + uncap;
 
         if(wp.awakening) {
             var a = i == 0 ? 'awkmh' : ('awk' + i);
