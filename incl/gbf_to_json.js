@@ -40,7 +40,8 @@ function __hensei_load_npc(npc) {
 }
 
 function __hensei_load_weapons(weapons) {
-    const uncaps = [40, 60, 80, 100, 150];
+    const uncaps = [40, 60, 80, 100, 150, 200];
+    const transcendences = [210, 220, 230, 240];
     const keyable = [
         [13], 
         [3, 13, 19, 27, 40],
@@ -78,6 +79,17 @@ function __hensei_load_weapons(weapons) {
             else break;
         
         weaponOut['uncap'] = uncap;
+
+        if(uncap > 5) {
+            var trans = 1;
+
+            for(k2 in transcendences)
+                if(lvl > transcendences[k2])
+                    trans++;
+                else break;
+
+            weaponOut['transcend'] = trans;
+        }
 
         var arousal = param['arousal'];
         if(arousal['is_arousal_weapon']) {
